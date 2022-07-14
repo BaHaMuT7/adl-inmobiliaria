@@ -49,7 +49,7 @@ let tagSpan = document.querySelector("h4 span")
 let btnBuscar = document.querySelector("#btn-bsucar")
 
 /* Métodos */
-const inicializar = (totalPropiedades = []) => {
+const reInicializar = (totalPropiedades = []) => {
     let divPropiedad = ''
 
     for (propiedad of totalPropiedades) {
@@ -72,7 +72,92 @@ const inicializar = (totalPropiedades = []) => {
     tagSpan.innerHTML = totalPropiedades.length.toString()
 }
 
+const notificarIncompleto = (tipoValidez) => {
+    if (tipoValidez === "numeroInvalido") {
+        alert("Debe ingresar un número válido")
+    }
+    if (tipoValidez === "numeroNoInicializado") {
+        alert("Se deben llenar todos los campos, tampoco pueden tener como valor un 0")
+    }
+}
+
+const camposValidos = () => {
+
+    let cuartosValue
+    let metrosDesdeValue
+    let metrosHastaValue
+    let validValues = {}
+
+    try {
+        cuartosValue = parseInt(document.querySelector("#txtNumCuartos").value)
+        metrosDesdeValue = parseInt(document.querySelector("#txtNumMetrosDesde").value)
+        metrosHastaValue = parseInt(document.querySelector("#txtNumMetrosHasta").value)
+
+        console.log( cuartosValue + ' - ' + metrosDesdeValue  + ' - ' + metrosHastaValue)
+    }
+    catch (error) {
+        notificarIncompleto("numeroInvalido")
+        return validValues = {
+            isValid: false
+        }
+    }
+
+    if (!cuartosValue) {
+        notificarIncompleto("numeroNoInicializado")
+        return validValues = {
+            isValid: false
+        }
+
+    }
+    if (!metrosDesdeValue) {
+        notificarIncompleto("numeroNoInicializado")
+        return validValues = {
+            isValid: false
+        }
+
+    }
+    if (!metrosHastaValue) {
+        notificarIncompleto("numeroNoInicializado")
+        return validValues = {
+            isValid: false
+        }
+
+    }
+
+    return validValues = {
+        isValid: true,
+        rooms: cuartosValue,
+        mFrom: metrosDesdeValue,
+        mTo: metrosHastaValue
+    }
+}
+
 
 /* Flujo */
-inicializar(propiedadesJSON)
+reInicializar(propiedadesJSON)
+btnBuscar.addEventListener("click", () => {
+    const {isValid, rooms, mFrom, mTo} = camposValidos()
+
+    if (isValid) {
+        const propiedadesFiltradas = propiedadesJSON.filter( propiedad => (
+            propiedad.rooms === rooms
+            && //cuadren las piezas
+            propiedad.m >= mFrom  && //cuadre el desde
+            propiedad.m <= mTo //cuadre el hasta
+        ))
+
+       propiedadesFiltradas.forEach(propiedad => {
+           console.log(propiedad.name)
+       })
+        if (propiedadesFiltradas.length === 0) {
+            alert("No se encontraron casas que coincidan con el criterio de búsqueda")
+            reInicializar(propiedadesJSON)
+        } else {
+            reInicializar(propiedadesFiltradas)
+        }
+    } else {
+        return
+    }
+})
+
   
